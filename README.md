@@ -14,7 +14,7 @@ If you run a Polymarket trading bot and you've never compared `sum(your_db.profi
 
 Most Polymarket bots record P&L the moment an order is **placed**, not when it **fills**. The CLOB matching engine fills in stages (FOK rejects, partial fills, sweep retries, dust). If your bot writes `profit=$3.20` to its DB the moment `post_order` returns OK, but the actual on-chain fills only retrieve $2.85, you're losing ~11% to slippage and your DB is lying to you about it.
 
-We hit this on our own bot. The DB said `+$33.49 lifetime profit`. The chain said `-$89.01`. Difference: **-$122.50 of hidden slippage cost** across 302 trades.
+We hit this on our own bot. The DB said `+$33.49 lifetime profit`. The chain said `-$89.01`. Difference: **-$122.50 of hidden slippage cost** across 308 trades.
 
 This package finds that gap on your bot.
 
@@ -71,7 +71,7 @@ Format spec: [`docs/data-format.md`](docs/data-format.md).
 # Slippage Report — 2026-04-28T14:30:00+00:00
 
 ## TL;DR
-- Closed trades total: 302 (live: 302, paper: 0)
+- Closed trades total: 308 (live: 308, paper: 0)
 - Lifetime theoretical P&L: +$33.49
 - Lifetime actual P&L (on-chain fills): -$89.01
 - Total slippage cost: -$122.50 (-365.8% of theoretical)
@@ -120,12 +120,19 @@ The dedup-by-`orderID` step is critical. Sweep retries (where your bot tries 5%,
 
 - v0.2 — Per-market category breakdown (sports vs politics vs crypto have different liquidity profiles)
 - v0.3 — Orderbook-depth-at-time-of-fill reconstruction (what was the actual book when you swept?)
-- v0.4 — Adapter for [Kalshi](https://kalshi.com), [Polygon Polymarket-style markets](https://www.polygon.com)
+- v0.4 — Adapter for [Kalshi](https://kalshi.com) and other prediction-market venues
 - v0.5 — Streamlit dashboard (real-time slippage monitoring)
 
 ## About the author
 
-Built by [LuciferForge](https://github.com/LuciferForge), a solo operator running a [public-audited Polymarket crash-recovery bot](https://github.com/LuciferForge/polymarket-crash-bot) (302 closed trades, 79.8% WR). I built this because my own bot's DB was lying to me. Now that it's not, my parameters are honest. Yours can be too.
+Built by [LuciferForge](https://github.com/LuciferForge), a solo operator running a [public-audited Polymarket crash-recovery bot](https://github.com/LuciferForge/polymarket-crash-bot) (308 closed trades, 80.2% WR). I built this because my own bot's DB was lying to me — found -$122.50 of hidden slippage cost on 308 trades. Now that the math is honest, the parameters can be too. Yours can be too.
+
+Other tools in the LuciferForge stack:
+- [`pip install polymarket-mcp-pro`](https://github.com/LuciferForge/polymarket-mcp) — Polymarket data as MCP tools for Claude / Cursor / Cline.
+- [`pip install cross-signal-data`](https://github.com/LuciferForge/cross-signal-data) — 308-trade labeled crash-recovery dataset (free, MIT, also on HuggingFace).
+- [`pip install quant-rollout`](https://github.com/LuciferForge/quant-rollout) — staged-deployment toolkit (gates, kill switch, veto window).
+- [`pip install sigil-ta`](https://github.com/LuciferForge/sigil) — MCP-native TA runtime with the unique Polymarket Sentiment Divergence signal.
+- [LuciferForge/polymarket-v2-migration](https://github.com/LuciferForge/polymarket-v2-migration) — V1→V2 cookbook for the April 28, 2026 cutover.
 
 ## License
 
