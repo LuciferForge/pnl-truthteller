@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pnl-truthteller"
+version = "0.1.0"
+description = "Audit your Polymarket bot's actual on-chain P&L vs what your bot thinks it earned. Slippage-focused fill reconciliation."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [
+    { name = "LuciferForge", email = "manja316@gmail.com" }
+]
+keywords = ["polymarket", "trading", "slippage", "pnl", "audit", "prediction-markets", "clob", "crypto"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Financial and Insurance Industry",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "requests>=2.28",
+]
+
+[project.optional-dependencies]
+clob = ["py-clob-client-v2>=1.0.0"]
+dev = ["pytest>=7", "pytest-cov>=4"]
+
+[project.scripts]
+pnl-truthteller = "pnl_truthteller.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/LuciferForge/pnl-truthteller"
+Repository = "https://github.com/LuciferForge/pnl-truthteller"
+Issues = "https://github.com/LuciferForge/pnl-truthteller/issues"
+
+[tool.setuptools.packages.find]
+include = ["pnl_truthteller*"]
+exclude = ["tests*", "examples*", "docs*"]

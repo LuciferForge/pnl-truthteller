@@ -1,0 +1,128 @@
+# pnl-truthteller
+
+**Audit your Polymarket bot's actual on-chain P&L vs what your bot thinks it earned.**
+
+`pip install pnl-truthteller` → run one command → get a report that shows you how much money your fill slippage is actually costing you.
+
+If you run a Polymarket trading bot and you've never compared `sum(your_db.profit)` to `sum(actual on-chain pUSD movement)` — you have no idea what you're really making. This tool tells you.
+
+## Why this exists
+
+Most Polymarket bots record P&L the moment an order is **placed**, not when it **fills**. The CLOB matching engine fills in stages (FOK rejects, partial fills, sweep retries, dust). If your bot writes `profit=$3.20` to its DB the moment `post_order` returns OK, but the actual on-chain fills only retrieve $2.85, you're losing ~11% to slippage and your DB is lying to you about it.
+
+We hit this on our own bot. The DB said `+$33.49 lifetime profit`. The chain said `-$89.01`. Difference: **-$122.50 of hidden slippage cost** across 302 trades.
+
+This package finds that gap on your bot.
+
+## Install
+
+```bash
+pip install pnl-truthteller
+```
+
+Or from source:
+```bash
+git clone https://github.com/LuciferForge/pnl-truthteller
+cd pnl-truthteller
+pip install -e .
+```
+
+## Usage — three input modes
+
+### 1. Direct from CLOB API (recommended — zero setup)
+
+If you trade through `py-clob-client` or `py-clob-client-v2`, your fills are queryable from Polymarket's CLOB API. Just give us your wallet address:
+
+```bash
+pnl-truthteller --wallet 0xYourProxyAddress --output report.md
+```
+
+This pulls every fill for the wallet, groups them by token+direction, and produces a slippage report.
+
+### 2. From your bot's SQLite (if you've been logging fills locally)
+
+If your bot stores raw CLOB responses in a SQLite file (column `raw_response`), point the tool at it:
+
+```bash
+pnl-truthteller --sqlite ~/bot/trades.db \
+                --positions ~/bot/positions.json \
+                --output report.md
+```
+
+Schema expected: a `live_trades` table with columns `token_id, side, timestamp, raw_response` where `raw_response` is the JSON string returned by `client.post_order()`. See [`docs/data-format.md`](docs/data-format.md).
+
+### 3. From a JSONL file (custom integrations)
+
+If you're on a non-Python stack or have custom logging, dump your trades + fills to JSONL and pass them in:
+
+```bash
+pnl-truthteller --trades trades.jsonl --fills fills.jsonl --output report.md
+```
+
+Format spec: [`docs/data-format.md`](docs/data-format.md).
+
+## What the report looks like
+
+```
+# Slippage Report — 2026-04-28T14:30:00+00:00
+
+## TL;DR
+- Closed trades total: 302 (live: 302, paper: 0)
+- Lifetime theoretical P&L: +$33.49
+- Lifetime actual P&L (on-chain fills): -$89.01
+- Total slippage cost: -$122.50 (-365.8% of theoretical)
+- Trades with stranded dust on-chain: 31 (total 47.3 shares dust)
+
+## By exit reason
+| Reason | n | Theoretical | Actual | Slippage |
+|---|---|---|---|---|
+| TIMEOUT | 142 | -$18.00 | -$84.50 | -$66.50 |
+| TARGET | 71 | +$28.40 | +$22.10 | -$6.30 |
+| RECOVERY_TRAILED | 50 | +$15.20 | +$12.40 | -$2.80 |
+| STOP | 39 | +$7.89 | +$0.99 | -$6.90 |
+
+## Worst 10 slippage events (per-trade)
+[table of the 10 worst trades by slippage]
+```
+
+## What this measures, precisely
+
+For each closed trade in your data, the tool:
+
+1. **Finds the actual BUY fills** by matching token+timestamp window, deduplicated by `orderID`.
+2. **Finds the actual SELL fills** that closed the position (same matching, same dedup).
+3. **Computes theoretical P&L** = `(exit_price - entry_price) × shares` (what the bot's DB says).
+4. **Computes actual P&L** = `sum(sell_takingAmount) - sum(buy_makingAmount)` (what the chain says).
+5. **Slippage = actual - theoretical**. Negative = your fill ladder walked the book down.
+
+The dedup-by-`orderID` step is critical. Sweep retries (where your bot tries 5%, 15%, 25% off ref price) often log the same orderID multiple times if your bot calls `post_order` from a retry loop without checking idempotency. Without dedup you double-count the proceeds and your slippage looks fine when it isn't.
+
+## What it does NOT do
+
+- It does NOT execute trades. Read-only auditing.
+- It does NOT need your private key. Wallet address only.
+- It does NOT report tax-purpose P&L. Slippage-focused, not gain/loss accounting.
+- It does NOT work for non-Polymarket markets (yet — see roadmap).
+
+## When to run it
+
+| Frequency | Why |
+|-----------|-----|
+| Once, now | If you've never done a fill-level audit, run it once to find out what your real P&L is. |
+| Daily (cron) | If your bot is live, run the report nightly to catch slippage regressions early. |
+| After every parameter change | Param changes (entry threshold, exit ladder) shift slippage. Run before/after to measure. |
+
+## Roadmap
+
+- v0.2 — Per-market category breakdown (sports vs politics vs crypto have different liquidity profiles)
+- v0.3 — Orderbook-depth-at-time-of-fill reconstruction (what was the actual book when you swept?)
+- v0.4 — Adapter for [Kalshi](https://kalshi.com), [Polygon Polymarket-style markets](https://www.polygon.com)
+- v0.5 — Streamlit dashboard (real-time slippage monitoring)
+
+## About the author
+
+Built by [LuciferForge](https://github.com/LuciferForge), a solo operator running a [public-audited Polymarket crash-recovery bot](https://github.com/LuciferForge/polymarket-crash-bot) (302 closed trades, 79.8% WR). I built this because my own bot's DB was lying to me. Now that it's not, my parameters are honest. Yours can be too.
+
+## License
+
+MIT. Audit your bot, audit your friends' bots, audit anyone's bot. The chain is public.
