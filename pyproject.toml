@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pnl-truthteller"
-version = "0.1.0"
+version = "0.1.1"
 description = "Audit your Polymarket bot's actual on-chain P&L vs what your bot thinks it earned. Slippage-focused fill reconciliation."
 readme = "README.md"
 license = { text = "MIT" }

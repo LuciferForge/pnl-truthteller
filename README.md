@@ -6,15 +6,29 @@
 
 **Audit your Polymarket bot's actual on-chain P&L vs what your bot thinks it earned.**
 
-`pip install pnl-truthteller` → run one command → get a report that shows you how much money your fill slippage is actually costing you.
+```bash
+pip install pnl-truthteller
+pnl-truthteller --wallet 0xYourPolymarketProxy --output report.md
+```
 
-If you run a Polymarket trading bot and you've never compared `sum(your_db.profit)` to `sum(actual on-chain pUSD movement)` — you have no idea what you're really making. This tool tells you.
+That's the entire workflow. Wallet address only. No API keys. Read-only. You get a markdown report showing how much your fill slippage is actually costing you.
+
+## What we found
+
+We built this because our own crash-recovery bot looked profitable in its SQLite (+$34) but felt like it was bleeding capital. We were right:
+
+| Source | Trades | DB-reported P&L | On-chain P&L | **Hidden slippage** |
+|---|---:|---:|---:|---:|
+| Our bot | 320 | $+34.31 | $-90.72 | **$-125.03** |
+| Random stranger's wallet (`0x1417...`) | 65 | $+32.36 | $-30.29 | **$-62.66** |
+
+**The gap generalises.** We tested the tool on a random Polymarket trader's wallet pulled from the public CLOB feed — same pattern. Their DB-equivalent showed +$32 over 65 trades; the chain says -$30; that's $62 of hidden slippage they don't know about.
+
+Both samples are in [`examples/`](examples/).
 
 ## Why this exists
 
 Most Polymarket bots record P&L the moment an order is **placed**, not when it **fills**. The CLOB matching engine fills in stages (FOK rejects, partial fills, sweep retries, dust). If your bot writes `profit=$3.20` to its DB the moment `post_order` returns OK, but the actual on-chain fills only retrieve $2.85, you're losing ~11% to slippage and your DB is lying to you about it.
-
-We hit this on our own bot. The DB said `+$33.49 lifetime profit`. The chain said `-$89.01`. Difference: **-$122.50 of hidden slippage cost** across 308 trades.
 
 This package finds that gap on your bot.
 

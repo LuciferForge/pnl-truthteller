@@ -141,6 +141,11 @@ def load_clob_api(
             "offset": offset,
         }
         resp = requests.get(url, params=params, timeout=timeout_sec)
+        # CLOB data-api returns HTTP 400 when offset is past the wallet's
+        # last trade. Treat that as end-of-pagination, not a hard error —
+        # but only if we've already pulled at least one page successfully.
+        if resp.status_code == 400 and pages > 0:
+            break
         resp.raise_for_status()
         rows = resp.json()
         if not isinstance(rows, list) or not rows:
