@@ -148,6 +148,16 @@ Other tools in the LuciferForge stack:
 - [`pip install sigil-ta`](https://github.com/LuciferForge/sigil) — MCP-native TA runtime with the unique Polymarket Sentiment Divergence signal.
 - [LuciferForge/polymarket-v2-migration](https://github.com/LuciferForge/polymarket-v2-migration) — V1→V2 cookbook for the April 28, 2026 cutover.
 
+## Want the underlying Polymarket dataset?
+
+The bot/dataset combo this tool was built and tested against is on Gumroad:
+
+**13,964 markets · 10.8M price records · $11.7B+ volume · clean CSVs + SQLite + manifest**
+
+→ [manja8.gumroad.com/l/polymarket-data](https://manja8.gumroad.com/l/polymarket-data?utm_source=github&utm_medium=readme&utm_campaign=pnl-truthteller-readme) — one-time price, lifetime updates.
+
+If you want to test your own slippage analysis against the same raw market data we use, this is the file.
+
 ## License
 
 MIT. Audit your bot, audit your friends' bots, audit anyone's bot. The chain is public.
