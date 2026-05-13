@@ -122,6 +122,23 @@ The dedup-by-`orderID` step is critical. Sweep retries (where your bot tries 5%,
 - It does NOT report tax-purpose P&L. Slippage-focused, not gain/loss accounting.
 - It does NOT work for non-Polymarket markets (yet — see roadmap).
 
+## FAQ (audited operators' first questions)
+
+**Q: Does this need my private key?**
+No. Wallet address only. The script reads public on-chain fills + the public CLOB feed. Same data Polymarket's own UI shows anyone who types your address in.
+
+**Q: Where does the audited data go?**
+Nowhere. Local file in → local file out. No telemetry, no API call to me, no upload. Verify with `pip show pnl-truthteller` then read the source — it's ~600 lines.
+
+**Q: I don't use a SQLite-logging bot, just trade by hand. Useful?**
+Yes — use mode 1 (`--wallet 0x...`). It pulls fills directly from CLOB and shows you slippage vs. mid-book at fill time. You don't need any local logging at all.
+
+**Q: How is this different from just reading my P&L on the Polymarket UI?**
+Polymarket's UI shows realized + unrealized P&L. It does *not* show the gap between your intended fill price and your actual fill price. That gap — slippage — is what `pnl-truthteller` isolates and attributes by exit reason. Without that attribution you can't fix what's bleeding.
+
+**Q: Why is this free / what's the catch?**
+The companion Polymarket dataset is paid (link at bottom). The auditor is free MIT because the more people who run it, the more wallets contribute to the public [Polymarket Slippage Index](examples/POLYMARKET_SLIPPAGE_INDEX.md) — which makes the dataset more valuable. Cooperative game.
+
 ## When to run it
 
 | Frequency | Why |
