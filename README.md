@@ -154,6 +154,10 @@ The companion Polymarket dataset is paid (link at bottom). The auditor is free M
 - v0.4 — Adapter for [Kalshi](https://kalshi.com) and other prediction-market venues
 - v0.5 — Streamlit dashboard (real-time slippage monitoring)
 
+## Public progress (no marketing, just receipts)
+
+Weekly recaps with verifiable numbers (downloads, stars, real operator questions, what worked vs didn't) are posted as Announcements in this repo's [Discussions](https://github.com/LuciferForge/pnl-truthteller/discussions/categories/announcements). Most recent: [Week 1 recap (2026-05-15)](https://github.com/LuciferForge/pnl-truthteller/discussions/6).
+
 ## About the author
 
 Built by [LuciferForge](https://github.com/LuciferForge), a solo operator running a [public-audited Polymarket crash-recovery bot](https://github.com/LuciferForge/polymarket-crash-bot) (308 closed trades, 80.2% WR). I built this because my own bot's DB was lying to me — found -$122.50 of hidden slippage cost on 308 trades. Now that the math is honest, the parameters can be too. Yours can be too.
