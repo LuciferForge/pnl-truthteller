@@ -2,6 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/pnl-truthteller.svg)](https://pypi.org/project/pnl-truthteller/)
 [![Python](https://img.shields.io/pypi/pyversions/pnl-truthteller.svg)](https://pypi.org/project/pnl-truthteller/)
+[![Downloads](https://static.pepy.tech/badge/pnl-truthteller)](https://pepy.tech/project/pnl-truthteller)
+[![Downloads/month](https://static.pepy.tech/badge/pnl-truthteller/month)](https://pepy.tech/project/pnl-truthteller)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Audit your Polymarket bot's actual on-chain P&L vs what your bot thinks it earned.**
